@@ -1,5 +1,6 @@
 import React from 'react'
 import '../styles/App.css';
+import { useState, useEffect } from 'react';
 
 
 
@@ -71,10 +72,81 @@ import '../styles/App.css';
 //   }
 // }
 const App = () => {
-  
+  const [user, setUser] = useState(null);
+  const [showAge, setShowAge] = useState(false);
+  const [showEmail, setShowEmail] = useState(false);
+  const [showPhone, setShowPhone] = useState(false);
+
+  useEffect(() => {
+    async function fetchUser() {
+      const response = await fetch('https://randomuser.me/api/');
+      const data = await response.json();
+      setUser(data.results[0]);
+    }
+    fetchUser();
+  }, []);
+
+  const handleClick = (e) => {
+    const attr = e.target.getAttribute('data-attr');
+    switch (attr) {
+      case 'age':
+        setShowAge(true);
+        setShowEmail(false);
+        setShowPhone(false);
+        break;
+      case 'email':
+        setShowAge(false);
+        setShowEmail(true);
+        setShowPhone(false);
+        break;
+      case 'phone':
+        setShowAge(false);
+        setShowEmail(false);
+        setShowPhone(true);
+        break;
+      default:
+        setShowAge(false);
+        setShowEmail(false);
+        setShowPhone(false);
+        break;
+    }
+  };
+
+  const handleGetUser = async () => {
+    const response = await fetch('https://randomuser.me/api/');
+    const data = await response.json();
+    setUser(data.results[0]);
+    setShowAge(false);
+    setShowEmail(false);
+    setShowPhone(false);
+  };
   return (
-    <div id="main">
-      
+    <div id="main" className='container'>
+      {user && (
+        <div className="img-container">
+          <img src={user.picture.large} alt="User" />
+          <h2 id='name'>{`${user.name.first} ${user.name.last}`}</h2>
+          <div className="buttons">
+            <button data-attr="age" onClick={handleClick}>
+              Age
+            </button>
+            <button data-attr="email" onClick={handleClick}>
+              Email
+            </button>
+            <button data-attr="phone" onClick={handleClick}>
+              Phone
+            </button>
+          </div>
+          <div className="info-container" id='additional-info'>
+            {showAge && <p>{`Age: ${user.dob.age}`}</p>}
+            {showEmail && <p>{`Email: ${user.email}`}</p>}
+            {showPhone && <p>{`Phone: ${user.phone}`}</p>}
+          </div>
+          <button id="getUser" onClick={handleGetUser}>
+            Get Another User
+          </button>
+        </div>
+      )}
     </div>
   )
 }
